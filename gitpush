@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [ ! -d ".git" ]; then
+    echo "No Git repository detected. Initializing..."
+    git init
+
+    # Prompt user to enter remote repository URL
+    read -p "Enter remote repository URL (or leave blank to skip): " remote_url
+
+    if [[ -n "$remote_url" ]]; then
+        git remote add origin "$remote_url"
+        echo "Remote repository added."
+    else
+        echo "No remote repository added. You can add it later using:"
+        echo "  git remote add origin <your-repo-url>"
+    fi
+fi
+
+read -p "Enter commit message: " commit
+
+if [[ -z "$commit" ]]; then
+    echo "Error: Commit message cannot be empty."
+    exit 1
+fi
+
+git add .
+
+git commit -m "$commit"
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [[ "$branch" == "HEAD" ]]; then
+    branch="main"
+    git branch -M "$branch"
+fi
+
+git push -u origin "$branch"
+
+echo "Changes pushed to $branch"
+
